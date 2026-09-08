@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>データベースマイグレーションはどう運用すべきか | 株式会社くむ</title>
+<meta name="description" content="データベースマイグレーションの運用方針。前に進む変更だけを積む、コードとスキーマの入れ替え順を決める、消す変更は2段階に分ける、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/db-migration/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>データベースマイグレーションの運用</h1>
+<p class="lede">データベースマイグレーションの運用方針。前に進む変更だけを積む、コードとスキーマの入れ替え順を決める、消す変更は2段階に分ける、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>マイグレーションは、コードと違って「戻す」が本当には効かない。列を落とす変更を戻しても、入っていた値は返ってこない。それでも巻き戻せる前提で運用していると、本番で問題が起きたときに、実際には戻せない手順を頼りに判断することになる。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「その変更が、古いコードと新しいコードのどちらからも安全に見えるか」である。配備はどうしても一瞬では終わらず、新旧のコードが同時に動く時間帯ができる。列を足すだけの変更は両方から安全に見える。列を消す変更、名前を変える変更、制約を厳しくする変更は、片方を壊す。</p>
+<h2>決めていること</h2>
+<p>スキーマは前に進む変更だけを積み、巻き戻し手順を運用の前提にしない。順序は「先にスキーマ、後からコード」を既定にする——逆にすると、新しいコードが存在しない列を触る時間帯ができる。消す変更は必ず2段階に分ける。まずコードから参照を外して配備し、しばらく置いて、誰も触っていないことを確かめてから落とす。実行前には必ず取り出せる形の控えを取る。控えは取ったことではなく、戻せることを1度確かめてはじめて控えになる。</p>
+<h2>例外</h2>
+<p>利用者がいない時間帯を確保できるなら、同時に動く時間帯の考慮は要らない。ただし「利用者がいない」は仮定ではなく、実際のアクセスで確かめてから使う。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

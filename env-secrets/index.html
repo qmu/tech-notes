@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>環境変数とシークレットはどう管理すべきか | 株式会社くむ</title>
+<meta name="description" content="環境変数とシークレットの管理方針。設定値と秘密情報を同じ入れ物に入れない、再生成できないものを一時領域に置かない、参照経路を1本にする、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/env-secrets/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>環境変数とシークレットの管理</h1>
+<p class="lede">環境変数とシークレットの管理方針。設定値と秘密情報を同じ入れ物に入れない、再生成できないものを一時領域に置かない、参照経路を1本にする、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>設定値と秘密情報は、どちらも「環境ごとに変わる値」なので同じ入れ物に入れたくなる。ところが両者は寿命も、漏れたときの被害も、扱ってよい人の範囲もまるで違う。同じ場所に置くと、設定を1つ足すたびに秘密情報の閲覧権限を配ることになり、権限は増える方向にしか動かなくなる。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「その値が漏れたとき、作り直せるか」である。作り直せる値（接続先のホスト名、機能フラグ、しきい値）は設定であり、リポジトリの外の環境変数で足りる。作り直せない値、あるいは作り直すと他所が止まる値（発行済みの証明書、相手先が登録済みのパスワード、署名鍵）は秘密情報で、専用の保管庫に置く。「暗号化してあるから同じ場所でよい」は答えになっていない。問題は暗号ではなく、誰がその入れ物を開けられるかである。</p>
+<h2>決めていること</h2>
+<p>設定は環境変数、秘密情報は秘密情報ストアに置き、両者を同じファイルに混ぜない。秘密情報は再生成できないものとして扱い、使い捨ての作業領域には置かない。そして参照経路は1本にする——同じ値が2箇所にあると、片方だけ更新されたことに誰も気づけない。更新の手順は必ず「更新したことを機械が確かめる」までを含める。値を書き換えただけでは、それを読む側のプロセスに届いたかどうかが分からない。</p>
+<h2>例外</h2>
+<p>ローカル開発だけで完結し、外部のどこにも接続しない値は、この区別を持ち込まなくてよい。ただし「ローカルだけのつもり」が本番に届く経路がないことを確かめてからにする。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

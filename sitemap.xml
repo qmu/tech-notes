@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://qmu.github.io/tech-notes/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/env-secrets/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/async-retry/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/audit-log/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/idempotency/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/db-migration/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/soft-delete/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/locking/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/file-upload/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/timezone/</loc></url>
+<url><loc>https://qmu.github.io/tech-notes/fulltext-search/</loc></url>
+</urlset>

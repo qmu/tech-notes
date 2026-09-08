@@ -1,0 +1,77 @@
+{
+  "seed": 20260908,
+  "assign": {
+    "env-secrets": "question",
+    "async-retry": "noun",
+    "audit-log": "question",
+    "idempotency": "noun",
+    "db-migration": "question",
+    "soft-delete": "noun",
+    "file-upload": "question",
+    "locking": "noun",
+    "timezone": "question",
+    "fulltext-search": "noun"
+  },
+  "topics": [
+    {
+      "slug": "env-secrets",
+      "subject": "環境変数とシークレットの管理",
+      "query": "環境変数 シークレット 管理",
+      "competition": 5
+    },
+    {
+      "slug": "async-retry",
+      "subject": "非同期処理のリトライ",
+      "query": "非同期処理 リトライ 設計",
+      "competition": 5
+    },
+    {
+      "slug": "audit-log",
+      "subject": "監査ログ",
+      "query": "監査ログ 設計",
+      "competition": 4
+    },
+    {
+      "slug": "idempotency",
+      "subject": "冪等性のあるAPI",
+      "query": "冪等性 API 設計",
+      "competition": 4
+    },
+    {
+      "slug": "db-migration",
+      "subject": "データベースマイグレーションの運用",
+      "query": "データベースマイグレーション 運用",
+      "competition": 4
+    },
+    {
+      "slug": "soft-delete",
+      "subject": "論理削除と物理削除",
+      "query": "論理削除 物理削除 使い分け",
+      "competition": 3
+    },
+    {
+      "slug": "locking",
+      "subject": "楽観ロックと悲観ロック",
+      "query": "楽観ロック 悲観ロック 使い分け",
+      "competition": 3
+    },
+    {
+      "slug": "file-upload",
+      "subject": "ファイルアップロードの検証",
+      "query": "ファイルアップロード 設計 検証",
+      "competition": 3
+    },
+    {
+      "slug": "timezone",
+      "subject": "タイムゾーンと日時の扱い",
+      "query": "タイムゾーン 日時 扱い 設計",
+      "competition": 2
+    },
+    {
+      "slug": "fulltext-search",
+      "subject": "全文検索の導入判断",
+      "query": "全文検索 導入 判断",
+      "competition": 1
+    }
+  ]
+}

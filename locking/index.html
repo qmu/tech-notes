@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>楽観ロックと悲観ロックの使い分け | 株式会社くむ</title>
+<meta name="description" content="楽観ロックと悲観ロックの使い分け。衝突がどれくらい起きるかで選ぶ。既定は楽観ロック、衝突が常態なら悲観ロック、いずれも利用者に何が起きたか伝える、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/locking/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>楽観ロックと悲観ロックの使い分け</h1>
+<p class="lede">楽観ロックと悲観ロックの使い分け。衝突がどれくらい起きるかで選ぶ。既定は楽観ロック、衝突が常態なら悲観ロック、いずれも利用者に何が起きたか伝える、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>同じデータを2人が同時に編集したとき、何もしなければ後から保存したほうが前の変更を黙って上書きする。失われた側は、自分の変更が消えたことに気づかない。エラーも出ないので、不具合として報告されることもない。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「衝突が実際にどれくらい起きるか」である。めったに起きないなら、先に押さえておくコストのほうが高い。起きたときだけ検出して、やり直してもらえばよい——これが楽観ロック。しょっちゅう起きるなら、やり直しが頻発して利用者が進めなくなる。先に押さえるほうが速い——これが悲観ロック。「どちらが正しいか」ではなく「この画面で衝突は何回起きるか」を見て決める。</p>
+<h2>決めていること</h2>
+<p>既定は楽観ロックにする。行に版を持たせ、更新時に版が変わっていたら拒否する。悲観ロックを使うのは、衝突が例外ではなく常態である場所に限る。押さえる時間は必ず上限を設ける——上限の無いロックは、押さえた側が落ちたときに他の全員を止める。どちらの場合も、拒否したことを利用者に伝える。「保存できませんでした」だけでは、何をやり直せばよいか分からない。誰が先に変えたか、どこが変わったかまで見せる。</p>
+<h2>例外</h2>
+<p>1人しか触らないことが構造上保証されている場所には、どちらも要らない。ただし「たぶん1人」は保証ではない。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

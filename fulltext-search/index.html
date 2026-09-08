@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全文検索の導入判断 | 株式会社くむ</title>
+<meta name="description" content="全文検索を入れるかどうかの判断。データベースの検索で足りるかを先に測る、入れるなら再構築の手順まで含めて設計する、揺れの吸収を後回しにしない、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/fulltext-search/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>全文検索の導入判断</h1>
+<p class="lede">全文検索を入れるかどうかの判断。データベースの検索で足りるかを先に測る、入れるなら再構築の手順まで含めて設計する、揺れの吸収を後回しにしない、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>全文検索の仕組みは、入れた瞬間に構成要素が1つ増える。本体のデータと索引の2つを持つことになり、両者がずれる可能性が常時できる。そして日本語は単語の区切りが無いので、入れただけでは期待した結果にならない。「検索が遅い」という理由だけで入れると、遅さは直らないまま運用の手間だけが増えることがある。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「いまの遅さの原因が、本当に検索の仕組みにあるか」である。件数が数万程度で、絞り込みの条件が先に効くなら、データベース側の索引で足りることが多い。足りなくなるのは、全体から語で引く必要があり、しかも部分一致と表記の揺れを吸収したいときである。測らずに入れると、原因が別のところにあった場合に、増えた構成要素だけが残る。</p>
+<h2>決めていること</h2>
+<p>入れる前に、いまの検索の実測値を取る。件数、応答時間、どの条件で遅いか。ここを飛ばさない。入れると決めたら、索引を丸ごと作り直す手順を最初に用意する——索引はいつか必ずずれるので、ずれたときに作り直せないと、ずれたまま運用することになる。表記の揺れ（大小、全角半角、送り仮名）の扱いは最初に決める。後から変えると、既存の索引を作り直すことになる。</p>
+<h2>例外</h2>
+<p>検索が主機能である場合は、この判断そのものが設計の中心になるので、ここで言う「入れるかどうか」の話ではない。その場合は最初から専用の仕組みを前提に組む。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

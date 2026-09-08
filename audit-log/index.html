@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>監査ログはどう設計すべきか | 株式会社くむ</title>
+<meta name="description" content="監査ログの設計方針。誰が・いつ・何を・どの値からどの値へ、を残す。読み手を先に決める、後から書き換えられない置き場所にする、個人情報を溜め込まない、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/audit-log/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>監査ログの設計</h1>
+<p class="lede">監査ログの設計方針。誰が・いつ・何を・どの値からどの値へ、を残す。読み手を先に決める、後から書き換えられない置き場所にする、個人情報を溜め込まない、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>監査ログは「とりあえず全部残す」で始まりやすい。ところが全部残すと量が増えて誰も読まなくなり、いざ何かが起きたときに「残っているはずだが探せない」という、残していないのとほぼ同じ状態になる。しかも操作ログには個人情報が混ざりやすく、溜め込むほど守るべき対象が増える。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「誰が、どんな問いを持って読むか」である。不正の調査なら、必要なのは主体と対象と時刻、そして変更の前後の値。障害の切り分けなら、必要なのは処理の流れと失敗した箇所。この2つは別物で、同じログで両方を賄おうとすると、どちらにも足りない中途半端なものになる。監査ログは前者に絞り、後者は動作ログとして分ける。</p>
+<h2>決めていること</h2>
+<p>監査ログには、誰が・いつ・何に対して・どの値からどの値へ変えたか、を残す。参照だけの操作は原則として残さない——量が桁で増えるわりに、後から読む理由がほとんど無い。ただし他人の個人情報を閲覧できる画面は例外で、参照も残す。置き場所は、書いた本人が後から書き換えられない場所にする。書き換えられるログは、疑いが生じた瞬間に証拠としての価値を失う。保存期間を先に決め、期間を過ぎたものは自動で消す。</p>
+<h2>例外</h2>
+<p>法令や契約で保存期間や項目が定められている場合は、そちらが優先する。その場合も「読み手を決める」は変わらない——決められた項目を残したうえで、読むための索引を別に用意する。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

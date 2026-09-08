@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>非同期処理のリトライ設計 | 株式会社くむ</title>
+<meta name="description" content="非同期処理のリトライ方針。何回試すかより先に「何が起きたら諦めるか」を決める、同じ入力で2回動いても壊れない形にする、諦めた事実を残す、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/async-retry/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>非同期処理のリトライ設計</h1>
+<p class="lede">非同期処理のリトライ方針。何回試すかより先に「何が起きたら諦めるか」を決める、同じ入力で2回動いても壊れない形にする、諦めた事実を残す、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>非同期処理は失敗しても呼び出し側に返らないので、失敗が誰にも見えないまま消える。そこでリトライを足すのだが、回数だけ決めて中身を決めないと、直らない失敗を延々と繰り返して相手先に負荷をかけ、しかも「まだ試している」と「もう諦めた」の区別が外から付かなくなる。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「もう一度やれば直る見込みがあるか」である。接続の一時的な切断、相手先の過負荷、締切超過は、時間を置けば直る。入力が不正、権限が無い、対象が存在しない、は何回試しても直らない。前者だけを再試行し、後者は即座に諦める。これを分けずに一律で再試行すると、直らない失敗が枠を食いつぶして、直る失敗まで巻き添えにする。</p>
+<h2>決めていること</h2>
+<p>再試行する条件を先に列挙し、そこに載っていない失敗は再試行しない。間隔は指数的に伸ばし、揺らぎを加えて同時再開が重ならないようにする。処理は同じ入力で2回動いても結果が変わらない形にする——再試行は「1回目が本当に失敗したか」を知らないまま走るので、1回目が成功していた場合に壊れない作りでなければ、再試行そのものが事故になる。そして諦めたときは、諦めた事実と入力を残す。残さないと、失敗は「無かったこと」として集計される。</p>
+<h2>例外</h2>
+<p>人がすぐ気づく画面上の操作は、機械の再試行より「もう一度押してもらう」ほうが速く確実なことがある。その場合も、押し直しで二重に処理されない形にはしておく。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

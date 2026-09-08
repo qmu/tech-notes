@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>論理削除と物理削除の使い分け | 株式会社くむ</title>
+<meta name="description" content="論理削除と物理削除の使い分け。消えたことにする理由を先に決める、既定は物理削除にする、論理削除にするなら全ての参照経路から外す、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/soft-delete/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>論理削除と物理削除の使い分け</h1>
+<p class="lede">論理削除と物理削除の使い分け。消えたことにする理由を先に決める、既定は物理削除にする、論理削除にするなら全ての参照経路から外す、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>論理削除は「あとで戻せるように」という理由で入りやすい。ところが一度入れると、以降すべての検索条件に「削除されていないもの」という条件が要る。1箇所でも書き忘れると、消したはずのデータが画面に出る。しかもその不具合は、消した直後には現れず、後から静かに出る。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「消したあとに、それを読む理由があるか」である。誤操作からの復旧、取引の履歴、法令上の保存義務——読む理由があるなら残す。「いつか要るかもしれない」は理由ではない。読む場面を具体的に言えないなら、それは物理削除でよい。</p>
+<h2>決めていること</h2>
+<p>既定は物理削除にする。残す必要があるものは、同じ表に印を付けるのではなく、履歴として別に持つ。同じ表に残すと、生きているデータと消えたデータが同じ場所に混ざり、参照のたびに条件が要る。どうしても同じ表に残すなら、条件を各所に書かず、既定で除外される1つの経路にまとめる。そして一意制約に注意する——消えた行が制約を占めたままだと、同じ名前で作り直せなくなる。</p>
+<h2>例外</h2>
+<p>利用者本人からの削除要求は、印を付けるのではなく実際に消す。「消したことにしてある」は、消したという説明と食い違う。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>

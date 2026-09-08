@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>冪等性のあるAPIの設計 | 株式会社くむ</title>
+<meta name="description" content="APIの冪等性の設計方針。呼び出し側が同じ鍵で2回呼んでも1回分になる形にする。鍵は呼び出し側が作る、結果を返し直す、鍵に寿命を持たせる、の3点を決めている。">
+<link rel="canonical" href="https://qmu.github.io/tech-notes/idempotency/">
+<style>*{box-sizing:border-box}
+:root{--bg:#fbfbf9;--fg:#1a1c1e;--dim:#5c6260;--rule:#e2e4df;--link:#1c5a52}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e8ebe7;--dim:#98a09b;--rule:#2b2f32;--link:#6cb9ab}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.9;font-size:16px}
+.wrap{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+header.site{border-bottom:1px solid var(--rule);padding-bottom:1rem;margin-bottom:2.5rem;font-size:14px}
+header.site a{color:var(--dim);text-decoration:none}
+h1{font-size:1.65rem;line-height:1.45;margin:0 0 .5rem;text-wrap:balance}
+.lede{color:var(--dim);margin:0 0 2.5rem;font-size:15px}
+h2{font-size:1.05rem;margin:2.5rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+p{margin:0 0 1rem}
+a{color:var(--link)}
+ul.idx{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+ul.idx li{border-bottom:1px solid var(--rule)}
+ul.idx a{display:block;padding:.9rem 0;text-decoration:none;color:var(--fg)}
+ul.idx a:hover{color:var(--link)}
+ul.idx .d{display:block;color:var(--dim);font-size:13.5px;line-height:1.7;margin-top:.15rem}
+footer{margin-top:4rem;padding-top:1.2rem;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site"><a href=".././">技術ノート — 株式会社くむ</a></header>
+<h1>冪等性のあるAPIの設計</h1>
+<p class="lede">APIの冪等性の設計方針。呼び出し側が同じ鍵で2回呼んでも1回分になる形にする。鍵は呼び出し側が作る、結果を返し直す、鍵に寿命を持たせる、の3点を決めている。</p>
+<h2>何が問題か</h2>
+<p>通信は「相手に届いたが応答が返らなかった」という状態を必ず作る。呼び出し側からは失敗と区別が付かないので、再送する。受け側が何も対策していなければ、注文が2件立ち、請求が2回走る。これは異常系ではなく通常起きることで、再送しない設計にするより、2回来ても壊れない設計にするほうが確実である。</p>
+<h2>判断の分かれ目</h2>
+<p>分かれ目は「同じ操作」を何で判定するかである。内容の一致で判定すると、同じ金額の正当な2回目の支払いまで握りつぶす。だから判定は内容ではなく、呼び出し側が付ける鍵で行う。鍵を受け側が振ると、再送のたびに別の鍵になって意味を成さない。</p>
+<h2>決めていること</h2>
+<p>更新系のAPIは、呼び出し側が生成した鍵を受け取る。同じ鍵で2回目が来たら、処理はせず1回目の結果をそのまま返す——エラーを返すと、呼び出し側は「失敗した」と解釈して状態が食い違う。鍵と結果の対応には寿命を持たせ、期限を過ぎたら消す。永久に持つと、記録のほうが本体より大きくなる。参照系と削除は、性質上もともと何回呼んでも同じになるので、鍵は要らない。</p>
+<h2>例外</h2>
+<p>1回目がまだ処理中のうちに2回目が来る場合がある。ここで待たせるか、処理中である旨を返すかは、呼び出し側が待てるかどうかで決める。どちらにせよ、2件目を新しい処理として走らせてはならない。</p>
+
+<footer>株式会社くむ（qmu）の技術ノートです。設計の判断基準を、根拠つきで公開しています。</footer>
+</div>
+</body>
+</html>
