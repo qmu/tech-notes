@@ -8,6 +8,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ASSIGN = json.load(open(os.path.join(HERE, "assign.json")))["assign"]
 OUT = os.path.dirname(HERE)  # リポジトリ直下に書き出す（Pages のルート配信）
 SITE = "技術ノート"
+# Search Console の所有確認タグ。src/google-site-verification.txt に token を置いたときだけ全ページの head に出す
+# （無ければ出力は一切変わらない）。token は Google アカウントに紐づく値で、ページの内容や順位には影響しない。
+_VERIFY_FILE = os.path.join(HERE, "google-site-verification.txt")
+VERIFY = ""
+if os.path.exists(_VERIFY_FILE):
+    _tok = open(_VERIFY_FILE, encoding="utf-8").read().strip()
+    if _tok:
+        VERIFY = f'\n<meta name="google-site-verification" content="{html.escape(_tok)}">'
 ORG = "株式会社くむ"
 
 CSS = """*{box-sizing:border-box}
@@ -39,7 +47,7 @@ def shell(title, desc, canonical, body):
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
-<link rel="canonical" href="{canonical}">
+<link rel="canonical" href="{canonical}">{VERIFY}
 <style>{CSS}</style>
 </head>
 <body>
